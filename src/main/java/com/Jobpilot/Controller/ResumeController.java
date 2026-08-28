@@ -2,6 +2,7 @@ package com.Jobpilot.Controller;
 
 import com.Jobpilot.entity.Resume;
 import com.Jobpilot.repository.ResumeRepository;
+import com.Jobpilot.service.LlmService;
 import com.Jobpilot.service.ResumeParserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -30,5 +31,17 @@ public class ResumeController {
         } catch (Exception e) {
             return "Error processing resume: " + e.getMessage();
         }
+    }
+
+    @Autowired
+    private LlmService llmService;
+
+    @PostMapping("/parse/{id}")
+    public String parseResume(@PathVariable Long id) {
+        Resume resume = resumeRepository.findById(id).orElseThrow();
+        String structuredData = llmService.extractStructuredResume(resume.getRawText());
+        resume.setStructuredJson(structuredData);
+        resumeRepository.save(resume);
+        return structuredData;
     }
 }
