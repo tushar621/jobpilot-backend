@@ -85,4 +85,20 @@ public class LlmService {
         List<Map> parts = (List<Map>) contentResponse.get("parts");
         return (String) parts.get(0).get("text");
     }
+    public List<Double> getEmbedding(String text) {
+        String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent?key=" + apiKey;
+        Map<String, Object> part = Map.of("text", text);
+        Map<String, Object> content = Map.of("parts", List.of(part));
+        Map<String, Object> body = Map.of("content", content);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
+
+        ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
+
+        Map embedding = (Map) response.getBody().get("embedding");
+        return (List<Double>) embedding.get("values");
+    }
 }
