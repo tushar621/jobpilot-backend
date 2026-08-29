@@ -1,7 +1,8 @@
 package com.Jobpilot.Controller;
-
+import java.util.List;
 import com.Jobpilot.entity.Resume;
 import com.Jobpilot.repository.ResumeRepository;
+import com.Jobpilot.service.AtsCheckerService;
 import com.Jobpilot.service.LlmService;
 import com.Jobpilot.service.ResumeParserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,5 +44,14 @@ public class ResumeController {
         resume.setStructuredJson(structuredData);
         resumeRepository.save(resume);
         return structuredData;
+    }
+
+    @Autowired
+    private AtsCheckerService atsCheckerService;
+
+    @GetMapping("/ats-check/{id}")
+    public List<String> atsCheck(@PathVariable Long id) {
+        Resume resume = resumeRepository.findById(id).orElseThrow();
+        return atsCheckerService.checkResume(resume.getRawText());
     }
 }
